@@ -1,0 +1,694 @@
+{
+    "description": "A New Flow",
+    "states": [
+      {
+        "name": "Trigger",
+        "type": "trigger",
+        "transitions": [
+          {
+            "next": "Apresentacao",
+            "event": "incomingMessage"
+          },
+          {
+            "event": "incomingCall"
+          },
+          {
+            "event": "incomingConversationMessage"
+          },
+          {
+            "event": "incomingRequest"
+          },
+          {
+            "event": "incomingParent"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 10,
+            "y": 40
+          }
+        }
+      },
+      {
+        "name": "Apresentacao",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "Separar_Atendimento",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "Apresentacao",
+            "event": "timeout"
+          },
+          {
+            "next": "Apresentacao",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": -40,
+            "y": 260
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Olá, seja bem-vindo(a) à Órigo!\n\nEscolha uma das opções abaixo para prosseguirmos com o atendimento:\n\n1- Já sou Sol Lover\n2- Quero ser Sol Lover\n3 - Sair",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "Separar_Atendimento",
+        "type": "split-based-on",
+        "transitions": [
+          {
+            "next": "Apresentacao",
+            "event": "noMatch"
+          },
+          {
+            "next": "Sol_Lovers_Cadastro",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "1",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "1, 1-, 1., one, um, uno, Sol Lover, sou cliente"
+              }
+            ]
+          },
+          {
+            "next": "Lead_Sol_Lover",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "2",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "2, 2-, 2., dois, two, dos, não sou, quero contratar, contratar"
+              }
+            ]
+          },
+          {
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "3",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "3,3-,3.,três, tres, sair, fim"
+              }
+            ]
+          }
+        ],
+        "properties": {
+          "input": "{{widgets.Apresentacao.inbound.Body}}",
+          "offset": {
+            "x": -170,
+            "y": 540
+          }
+        }
+      },
+      {
+        "name": "Sol_Lovers_Cadastro",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "Opcoes_Sol_Lover",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "Sol_Lovers_Cadastro",
+            "event": "timeout"
+          },
+          {
+            "next": "Sol_Lovers_Cadastro",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": -440,
+            "y": 780
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Olá Sol Lover, que bom te ver por aqui!\n\nPor gentileza, insira o CPF do titular do plano.",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "Opcoes_Sol_Lover",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "Escolha_Sol_Lover",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "Sol_Lovers_Cadastro",
+            "event": "timeout"
+          },
+          {
+            "next": "Opcoes_Sol_Lover",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": -590,
+            "y": 1010
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Certo, encontramos o seu cadastro!\n\nComo podemos te ajudar hoje?\n\n1 - 2ª via da Fatura\n2 - Contratar novos serviços\n3 - Relatar problema/dificuldade\n4 - Clube de Pontos\n5 - Cancelar serviço\n9 - Falar com Atendente",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "Escolha_Sol_Lover",
+        "type": "split-based-on",
+        "transitions": [
+          {
+            "next": "Opcoes_Sol_Lover",
+            "event": "noMatch"
+          },
+          {
+            "next": "Atendente",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "9",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "9, 9-, 9., nove, Atendente, Especialista, Falar com alguém"
+              }
+            ]
+          },
+          {
+            "next": "Cancelamento",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "5",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "5,5-,5.,cinco, cancelar, cancelar serviço, quero cancelar"
+              }
+            ]
+          },
+          {
+            "next": "Clube_de_Pontos",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "4",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "4,4-,4.,quatro, clube, pontos, clube de pontos"
+              }
+            ]
+          }
+        ],
+        "properties": {
+          "input": "{{widgets.Apresentacao.inbound.Body}}",
+          "offset": {
+            "x": -800,
+            "y": 1260
+          }
+        }
+      },
+      {
+        "name": "Atendente",
+        "type": "send-message",
+        "transitions": [
+          {
+            "next": "Conexao_Atendente",
+            "event": "sent"
+          },
+          {
+            "next": "Atendente",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": -1110,
+            "y": 1500
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Sol Lover, estamos te transferindo para um dos nossos atendentes.\n\nPor conta da alta demanda, o atendimento pode demorar um pouco para iniciar.\n\nCaso deseje, entre em contato pelo nosso telefone: 4003-4498\n\nOu então, mande o seu caso para o nosso e-mail: atendimento.fazenda@origoenergia.com.br"
+        }
+      },
+      {
+        "name": "Conexao_Atendente",
+        "type": "connect-virtual-agent-v2",
+        "transitions": [
+          {
+            "next": "Conexao_Atendente",
+            "event": "completed"
+          },
+          {
+            "next": "Conexao_Atendente",
+            "event": "live-agent-handoff"
+          },
+          {
+            "next": "Conexao_Atendente",
+            "event": "hangup"
+          },
+          {
+            "next": "Conexao_Atendente",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": -1390,
+            "y": 1780
+          },
+          "status_callback_method": "POST",
+          "configurations": [],
+          "status_callback": "",
+          "connector_name": "Atendimento",
+          "parameters": []
+        }
+      },
+      {
+        "name": "Cancelamento",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "Cancelamento_Concluido",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "Escolha_Sol_Lover",
+            "event": "timeout"
+          },
+          {
+            "next": "Cancelamento",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": -770,
+            "y": 1510
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Que pena, Sol Lover! 🥲🌑\n\nQual o motivo do cancelamento?",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "Cancelamento_Concluido",
+        "type": "send-message",
+        "transitions": [
+          {
+            "event": "sent"
+          },
+          {
+            "next": "Cancelamento_Concluido",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": -820,
+            "y": 1770
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Cancelamento concluído com sucesso ✅\nEsperamos brilhar junto com você novamente no futuro! 🌞"
+        }
+      },
+      {
+        "name": "Clube_de_Pontos",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "Apresentacao",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "Clube_de_Pontos",
+            "event": "timeout"
+          },
+          {
+            "next": "Clube_de_Pontos",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": -420,
+            "y": 1500
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Bem-vindo ao point's, o Clube de Pontos dos Sol Lovers! \n\nComo podemos te ajudar?\n\n1 - Consultar pontos\n2 - Trocar por pontos Livelo\n3 - Trocar por pontos prêmio.digital\n4 - Trocar por desconto na fatura\n5 - Doar pontos para ONG ....",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "Lead_Sol_Lover",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "Opcoes_Lead",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "Lead_Sol_Lover",
+            "event": "timeout"
+          },
+          {
+            "next": "Lead_Sol_Lover",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 340,
+            "y": 760
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "É um prazer te ver por aqui! 🌞\n\nEscolha uma das opções abaixo:\n\n1 - Contratar o serviço\n2 - Valores das assinaturas\n3 - Quais os benefícios de ser Sol Lover?\n9 - Falar com Atendente",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "Opcoes_Lead",
+        "type": "split-based-on",
+        "transitions": [
+          {
+            "next": "Opcoes_Lead",
+            "event": "noMatch"
+          },
+          {
+            "next": "Contratacao",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "1",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "1,1-,1., um, contratar, ser Sol Lover, contrata, contratação"
+              }
+            ]
+          },
+          {
+            "next": "Valores_Assinaturas",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "2",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "2,2-,2.,dois, valores, preço, quanto custa"
+              }
+            ]
+          },
+          {
+            "next": "Beneficios",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "3",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "3,3-,3.,três, benefícios, vantagens"
+              }
+            ]
+          },
+          {
+            "next": "Atendente_Contratacao",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "9",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "9,9-,9.,nove, atendente, especialista, falar com alguém"
+              }
+            ]
+          }
+        ],
+        "properties": {
+          "input": "{{widgets.Apresentacao.inbound.Body}}",
+          "offset": {
+            "x": 620,
+            "y": 980
+          }
+        }
+      },
+      {
+        "name": "Contratacao",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "Contratacao_Concluida",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "Contratacao",
+            "event": "timeout"
+          },
+          {
+            "next": "Contratacao",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 280,
+            "y": 1220
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Que ótima notícia, mais um Sol Lover para o time! ☀️\n\nPor gentileza envie os seguintes dados para concluirmos a contratação:\n\n- Nome Completo\n- CPF/CNPJ\n- Endereço\n- Código de Cliente na Cia. Elétrica",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "Contratacao_Concluida",
+        "type": "send-message",
+        "transitions": [
+          {
+            "next": "Apresentacao",
+            "event": "sent"
+          },
+          {
+            "next": "Contratacao_Concluida",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 80,
+            "y": 1500
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Seja bem-vindo(a) ao time, Sol Lover! ✨\n\nContratação concluída com sucesso! ✅\n\nO processamento com a Distribuidora pode levar entre 60 e 90 dias, mas a partir desse mês você já começa a receber seus descontos a partir do nosso Clube de Benefícios, que você acessa por meio do seu CPF!\n\nObrigado!"
+        }
+      },
+      {
+        "name": "Atendente_Contratacao",
+        "type": "send-message",
+        "transitions": [
+          {
+            "next": "Copy_of_Conexao_Atendente",
+            "event": "sent"
+          },
+          {
+            "next": "Atendente_Contratacao",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 1120,
+            "y": 770
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "Estamos te transferindo para um dos nossos atendentes. 📞\n\nPor conta da alta demanda, o atendimento pode demorar um pouco para iniciar.\n\nCaso deseje, entre em contato pelo nosso telefone: 4003-4498 ☎️\n\nOu então, mande o seu caso para o nosso e-mail: atendimento.fazenda@origoenergia.com.br 💻"
+        }
+      },
+      {
+        "name": "Copy_of_Conexao_Atendente",
+        "type": "connect-virtual-agent-v2",
+        "transitions": [
+          {
+            "next": "Apresentacao",
+            "event": "completed"
+          },
+          {
+            "next": "Copy_of_Conexao_Atendente",
+            "event": "live-agent-handoff"
+          },
+          {
+            "next": "Copy_of_Conexao_Atendente",
+            "event": "hangup"
+          },
+          {
+            "next": "Copy_of_Conexao_Atendente",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 1500,
+            "y": 560
+          },
+          "status_callback_method": "POST",
+          "configurations": [],
+          "status_callback": "",
+          "connector_name": "Atendimento_Lead",
+          "parameters": []
+        }
+      },
+      {
+        "name": "Valores_Assinaturas",
+        "type": "send-and-wait-for-reply",
+        "transitions": [
+          {
+            "next": "Valores_Contratacao",
+            "event": "incomingMessage"
+          },
+          {
+            "next": "Valores_Assinaturas",
+            "event": "timeout"
+          },
+          {
+            "next": "Valores_Assinaturas",
+            "event": "deliveryFailure"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 750,
+            "y": 1270
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "body": "Legal, aqui estão os valores das nossas assinaturas:\n\n-\n-\n-\n\nDeseja prosseguir para a contratação e se tornar Sol Lover? 🌞\n\n1 - Sim\n2 - Não",
+          "timeout": "3600"
+        }
+      },
+      {
+        "name": "Valores_Contratacao",
+        "type": "split-based-on",
+        "transitions": [
+          {
+            "next": "Valores_Assinaturas",
+            "event": "noMatch"
+          },
+          {
+            "next": "Contratacao",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "1",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "1,1-,1.,um, sim, 1-sim"
+              }
+            ]
+          },
+          {
+            "next": "Opcoes_Lead",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "2",
+                "arguments": [
+                  "{{widgets.Apresentacao.inbound.Body}}"
+                ],
+                "type": "matches_any_of",
+                "value": "2,2-,2.,dois, não, 2-não"
+              }
+            ]
+          }
+        ],
+        "properties": {
+          "input": "{{widgets.Apresentacao.inbound.Body}}",
+          "offset": {
+            "x": 740,
+            "y": 1520
+          }
+        }
+      },
+      {
+        "name": "Beneficios",
+        "type": "send-message",
+        "transitions": [
+          {
+            "next": "Lead_Sol_Lover",
+            "event": "sent"
+          },
+          {
+            "next": "Beneficios",
+            "event": "failed"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 1240,
+            "y": 1110
+          },
+          "service": "{{trigger.message.InstanceSid}}",
+          "channel": "{{trigger.message.ChannelSid}}",
+          "from": "{{flow.channel.address}}",
+          "to": "{{contact.channel.address}}",
+          "body": "A Fazenda Solar gera energia por meio de placas solares que captam a luz do sol e a transformam em energia elétrica, renovável e limpa! Você pode contratar uma parte da capacidade de geração que será levada até você através da distribuidora. Além de sustentável, nossa energia é mais barata que a da distribuidora e por isso a sua economia é garantida!  💰\n\nA Órigo passará a gerar uma parte do seu consumo de energia mensal, cobrando menos pela energia que for injetada por nós."
+        }
+      }
+    ],
+    "initial_state": "Trigger",
+    "flags": {
+      "allow_concurrent_calls": true
+    }
+  }
