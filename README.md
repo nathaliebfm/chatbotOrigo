@@ -9,7 +9,7 @@
  <a href="#funcionalidades">Funcionalidades</a> •
  <a href="#roadmap">Roadmap</a> •
  <a href="#referencias">Referências</a> •
- <a href="#autoras">Autoras do projeto</a> 
+ <a href="#autoras">Autoras</a> 
  <a href="#"></a>  
 </p>
 
@@ -35,7 +35,7 @@ Para otimizar essa questão, em termos de tempo e dinheiro, e para desburocratiz
  - [Documentação Twilio](https://www.twilio.com/pt-br/docs)
  - [APIs para Empresas](https://github.com/matiassingers/awesome-readme)
 
-<a name="referencias"><h2>Autoras - Time 1 {SuperDevas} 👩🏻‍💻</h2></a> 
+<a name="autoras"><h2>Autoras - Time 1 {SuperDevas} 👩🏻‍💻</h2></a> 
 
 - [@nathaliebfm](https://www.github.com/octokatherine)
 - [@lettycodes](https://github.com/lettycodes)
